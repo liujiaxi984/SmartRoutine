@@ -10,7 +10,7 @@
       (See accompanying file LICENSE_1_0.txt or copy at
             http://www.boost.org/LICENSE_1_0.txt)
 */
-#include "libcontext.h"
+#include "internal/libcontext.h"
 #if defined(LIBCONTEXT_PLATFORM_windows_i386) &&                               \
     defined(LIBCONTEXT_COMPILER_gcc)
 __asm(".text\n"

@@ -15,7 +15,7 @@ DEFINE_uint64(runtime_threads_num, 0, "initial runtime threads number");
 void *run_smart_thread(void *args) {
     SmartThread *thread = (SmartThread *)args;
     tls_smart_thread = thread;
-    thread->main_loop();
+    thread->init();
 }
 
 SmartRuntime &SmartRuntime::get_instance() {
@@ -30,7 +30,7 @@ void SmartRuntime::init() {
         value_->threads_num_ = FLAGS_runtime_threads_num;
     }
     value_->threads_ = new SmartThread[value_->threads_num_];
-    for (uint i = 0; i < value_->threads_num_; i++) {
+    for (unsigned int i = 0; i < value_->threads_num_; i++) {
         pthread_t tid;
         pthread_create(&tid, nullptr, run_smart_thread, &value_->threads_[i]);
     }
@@ -43,10 +43,11 @@ int SmartRuntime::push_task(SmartCoro *coro) {
     return 0;
 }
 
-int SmartRuntime::get_tasks(uint batch_size, std::list<SmartCoro *> &tasks) {
+int SmartRuntime::get_tasks(unsigned int batch_size,
+                            std::list<SmartCoro *> &tasks) {
     std::lock_guard<std::mutex> lk(task_list_lock_);
     auto iter = task_list_.begin();
-    uint i = 0;
+    unsigned int i = 0;
     while (iter != task_list_.end() && i < batch_size) {
         iter++;
         i++;
@@ -62,4 +63,14 @@ int SmartRuntime::wait_on_task_list() {
     lk.unlock();
 
     return 0;
+}
+
+SmartEPoller &SmartRuntime::get_epoller() { return epoller_; }
+
+SmartRuntime::SmartRuntime() : threads_num_(0), threads_(nullptr) {}
+SmartRuntime::~SmartRuntime() {
+    delete[] threads_;
+    for (auto iter = task_list_.begin(); iter != task_list_.end(); iter++) {
+        delete *iter;
+    }
 }
