@@ -5,7 +5,7 @@
 
 #define EPOLL_CREATE_SIZE 10000
 #define DEFAULT_EVLIST_SIZE 10000
-#define DEFAULT_EPOLL_TIMEOUT 1000
+#define DEFAULT_EPOLL_TIMEOUT -1
 
 DEFINE_int64(evlist_size, DEFAULT_EVLIST_SIZE,
              "The maximum number of events that can be "
@@ -13,11 +13,10 @@ DEFINE_int64(evlist_size, DEFAULT_EVLIST_SIZE,
 
 SmartEPoller::SmartEPoller()
     : maxevents_(DEFAULT_EVLIST_SIZE), evlist_(nullptr),
-      epoll_timeout_(DEFAULT_EPOLL_TIMEOUT) {
-} // TODO: set epoll_timeout_ based on timer's need
+      epoll_timeout_(DEFAULT_EPOLL_TIMEOUT) {}
 
 int SmartEPoller::init() {
-    if (epoll_create(EPOLL_CREATE_SIZE) < 0) {
+    if ((epoll_fd_ = epoll_create(EPOLL_CREATE_SIZE)) < 0) {
         LOG(ERROR) << "epoll_create error: " << strerror(errno);
         return -1;
     }
@@ -25,6 +24,8 @@ int SmartEPoller::init() {
         maxevents_ = FLAGS_evlist_size;
     }
     evlist_ = new epoll_event[maxevents_];
+
+    return 0;
 }
 
 SmartEPoller::~SmartEPoller() {
@@ -34,22 +35,25 @@ SmartEPoller::~SmartEPoller() {
 
 int SmartEPoller::watch_event(EPollItem *item) {
     struct epoll_event event;
+    int ret = 0;
     memset(&event, 0, sizeof(event));
     if (item->is_watching()) {
         if (item->is_disabled()) {
-            epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, item->fd(), NULL);
+            ret = epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, item->fd(), NULL);
             item->clear_watching();
         } else {
             event.events = item->events();
             event.data.ptr = item;
-            epoll_ctl(epoll_fd_, EPOLL_CTL_MOD, item->fd(), &event);
+            ret = epoll_ctl(epoll_fd_, EPOLL_CTL_MOD, item->fd(), &event);
         }
     } else {
         event.events = item->events();
         event.data.ptr = item;
-        epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, item->fd(), &event);
+        ret = epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, item->fd(), &event);
         item->set_watching();
     }
+
+    return ret;
 }
 
 int SmartEPoller::eventloop() {
@@ -67,8 +71,10 @@ int SmartEPoller::eventloop() {
             ready_list_.clear();
             for (int i = 0; i < ready_num; i++) {
                 EPollItem *epoll_item = (EPollItem *)evlist_[i].data.ptr;
-                epoll_item->set_revents(evlist_[i].events);
-                ready_list_.push_back(epoll_item);
+                if (epoll_item) {
+                    epoll_item->set_revents(evlist_[i].events);
+                    ready_list_.push_back(epoll_item);
+                }
             }
         }
         for (EPollItem *ready_item : ready_list_) {

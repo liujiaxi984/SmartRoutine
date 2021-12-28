@@ -13,6 +13,7 @@ smart_thread.cpp
 epoll_item.cpp
 internal/libcontext.cpp
 internal/smart_routine_impl.cpp
+smart_timer.cpp
 )
 target_include_directories(smart_routine PUBLIC ${CMAKE_SOURCE_DIR}/include)
 target_link_libraries(smart_routine PUBLIC glog::glog ${GFLAGS_LIBRARIES})

@@ -32,9 +32,13 @@ struct WriteContext {
     int errno_ = 0;
 };
 
+struct ConnectContext {};
+
 void smart_read_impl(ReadContext *context);
 
 void smart_write_impl(WriteContext *context);
+
+void smart_connect_impl(ConnectContext *context);
 
 /**
  * @brief deferred adding back to task queue

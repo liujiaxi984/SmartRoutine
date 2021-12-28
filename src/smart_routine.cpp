@@ -11,7 +11,7 @@ extern __thread SmartThread *tls_smart_thread;
 
 int smart_routine_start(void *(*fn)(void *), void *args) {
     SmartCoro *coro = new SmartCoro(fn, args);
-    smart_routine_resume(coro);
+    return smart_routine_resume(coro);
 }
 
 int smart_routine_yield() {
@@ -71,4 +71,15 @@ ssize_t smart_write(int fd, const void *buf, size_t count) {
         return context.curr_;
     } else
         return write(fd, buf, count);
+}
+
+int smart_accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen) {}
+
+int smart_connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen) {
+    int ret = connect(sockfd, addr, addrlen);
+    if (ret < 0 && errno == EINPROGRESS) {
+
+    } else {
+        return ret;
+    }
 }

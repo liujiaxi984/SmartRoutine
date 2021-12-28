@@ -2,6 +2,8 @@
 #include "smart_thread.h"
 #include <algorithm>
 #include <gflags/gflags.h>
+#include <glog/logging.h>
+#include <string.h>
 #include <unistd.h>
 
 DEFINE_uint64(stack_size, 128 * 1024, "coroutine stack size");
@@ -18,8 +20,11 @@ SmartCoro::SmartCoro(EntryFn fn, void *args) : fn_(fn), args_(args) {
         ~PAGESIZE_M1;
 
     context_.sp_ = malloc(stack_size);
+    if (context_.sp_ == nullptr) {
+        LOG(ERROR) << "malloc error: " << strerror(errno);
+    }
     context_.stack_size_ = stack_size;
-    void *bp = context_.sp_ + stack_size;
+    void *bp = (char *)context_.sp_ + stack_size;
     context_.fcontext_ =
         make_fcontext(bp, stack_size, SmartThread::coro_runner);
 }

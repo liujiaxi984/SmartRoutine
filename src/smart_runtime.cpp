@@ -16,6 +16,23 @@ void *run_smart_thread(void *args) {
     SmartThread *thread = (SmartThread *)args;
     tls_smart_thread = thread;
     thread->init();
+
+    return 0;
+}
+
+void *run_epoller(void *args) {
+    SmartEPoller *epoller = (SmartEPoller *)args;
+    epoller->init();
+    epoller->eventloop();
+
+    return 0;
+}
+
+void *run_timer(void *args) {
+    SmartTimer *timer = (SmartTimer *)args;
+    timer->run();
+
+    return 0;
 }
 
 SmartRuntime &SmartRuntime::get_instance() {
@@ -24,16 +41,21 @@ SmartRuntime &SmartRuntime::get_instance() {
 }
 
 void SmartRuntime::init() {
+    value_ = new SmartRuntime;
+    atexit(exit_clean);
     if (FLAGS_runtime_threads_num == 0) {
         value_->threads_num_ = std::thread::hardware_concurrency();
     } else {
         value_->threads_num_ = FLAGS_runtime_threads_num;
     }
     value_->threads_ = new SmartThread[value_->threads_num_];
+    value_->tids_.resize(value_->threads_num_);
     for (unsigned int i = 0; i < value_->threads_num_; i++) {
-        pthread_t tid;
-        pthread_create(&tid, nullptr, run_smart_thread, &value_->threads_[i]);
+        pthread_create(&value_->tids_[i], nullptr, run_smart_thread,
+                       &value_->threads_[i]);
     }
+    pthread_create(&value_->epoller_tid_, nullptr, run_timer, &value_->timer_);
+    pthread_create(&value_->timer_tid_, nullptr, run_timer, &value_->timer_);
 }
 
 int SmartRuntime::push_task(SmartCoro *coro) {
@@ -67,10 +89,19 @@ int SmartRuntime::wait_on_task_list() {
 
 SmartEPoller &SmartRuntime::get_epoller() { return epoller_; }
 
+SmartTimer &SmartRuntime::get_timer() { return timer_; }
+
 SmartRuntime::SmartRuntime() : threads_num_(0), threads_(nullptr) {}
 SmartRuntime::~SmartRuntime() {
+    for (unsigned int i = 0; i < value_->threads_num_; i++) {
+        pthread_join(value_->tids_[i], nullptr);
+    }
+    pthread_join(value_->timer_tid_, nullptr);
+    pthread_join(value_->timer_tid_, nullptr);
     delete[] threads_;
     for (auto iter = task_list_.begin(); iter != task_list_.end(); iter++) {
         delete *iter;
     }
 }
+
+void SmartRuntime::exit_clean() { delete value_; }

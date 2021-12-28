@@ -44,6 +44,8 @@ void smart_write_impl(WriteContext *context) {
     }
 }
 
+void smart_connect_impl(ConnectContext *context) {}
+
 void add_back_to_queue(void *args) {
     SmartCoro *coro = (SmartCoro *)args;
     tls_smart_thread->push_task(coro);

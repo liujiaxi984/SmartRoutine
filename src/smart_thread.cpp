@@ -2,6 +2,7 @@
 #include "internal/libcontext.h"
 #include "smart_runtime.h"
 #include <gflags/gflags.h>
+#include <glog/logging.h>
 #include <unistd.h>
 
 __thread SmartThread *tls_smart_thread = nullptr;
@@ -19,7 +20,7 @@ void SmartThread::coro_runner(intptr_t placeholder) {
         tls_st->runner_callback_args_ = nullptr;
     }
     SmartCoro *curr_coro = tls_st->current_coro_;
-    if (curr_coro) {
+    if (curr_coro && curr_coro->fn_) {
         curr_coro->fn_(curr_coro->args_);
     }
     tls_st->runner_callback_ = destroy_coro;
@@ -46,7 +47,7 @@ SmartThread::~SmartThread() {
 
 int SmartThread::init() {
     SmartRuntime::get_instance().wait_on_task_list();
-    main_loop();
+    return main_loop();
 }
 
 int SmartThread::main_loop() {
@@ -64,7 +65,7 @@ int SmartThread::main_loop() {
 int SmartThread::yield(bool with_callback, RunnerCallback runner_callback,
                        void *runner_callback_args) {
     SmartCoro *coro = tls_smart_thread->get_task();
-    if (coro == nullptr) {
+    if (coro != nullptr) {
         if (with_callback) {
             runner_callback_ = runner_callback;
             runner_callback_args_ = runner_callback_args;
@@ -82,8 +83,9 @@ void SmartThread::destroy_coro(void *args) {
 }
 
 int SmartThread::switch_to(SmartCoro *next_coro) {
-    jump_fcontext(&current_coro_->context_.fcontext_,
-                  next_coro->context_.fcontext_, 0);
+    fcontext_t *curr_fcontext = &current_coro_->context_.fcontext_;
+    current_coro_ = next_coro;
+    return jump_fcontext(curr_fcontext, next_coro->context_.fcontext_, 0);
 }
 
 SmartCoro *SmartThread::get_task() {

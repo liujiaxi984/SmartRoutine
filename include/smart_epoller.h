@@ -12,8 +12,8 @@ class SmartEPoller {
 
   private:
     int epoll_fd_;
-    int epoll_timeout_;
     int maxevents_;
     struct epoll_event *evlist_;
     std::list<EPollItem *> ready_list_;
+    int epoll_timeout_;
 };
