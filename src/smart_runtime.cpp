@@ -54,7 +54,8 @@ void SmartRuntime::init() {
         pthread_create(&value_->tids_[i], nullptr, run_smart_thread,
                        &value_->threads_[i]);
     }
-    pthread_create(&value_->epoller_tid_, nullptr, run_timer, &value_->timer_);
+    pthread_create(&value_->epoller_tid_, nullptr, run_epoller,
+                   &value_->epoller_);
     pthread_create(&value_->timer_tid_, nullptr, run_timer, &value_->timer_);
 }
 

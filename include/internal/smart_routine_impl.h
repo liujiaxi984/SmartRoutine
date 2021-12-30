@@ -32,13 +32,36 @@ struct WriteContext {
     int errno_ = 0;
 };
 
-struct ConnectContext {};
+struct ConnectContext {
+    ConnectContext(int sockfd, SmartCoro *coro, EPollItem *epoll_item)
+        : sockfd_(sockfd), coro_(coro), epoll_item_(epoll_item) {}
+    int sockfd_;
+    SmartCoro *coro_;
+    EPollItem *epoll_item_;
+    int errno_ = 0;
+};
+
+struct AcceptContext {
+    AcceptContext(int sockfd, struct sockaddr *addr, socklen_t *addrlen,
+                  SmartCoro *coro, EPollItem *epoll_item)
+        : sockfd_(sockfd), addr_(addr), addrlen_(addrlen), coro_(coro),
+          epoll_item_(epoll_item) {}
+    int sockfd_;
+    struct sockaddr *addr_;
+    socklen_t *addrlen_;
+    SmartCoro *coro_;
+    EPollItem *epoll_item_;
+    int errno_ = 0;
+    int ret_ = -1;
+};
 
 void smart_read_impl(ReadContext *context);
 
 void smart_write_impl(WriteContext *context);
 
 void smart_connect_impl(ConnectContext *context);
+
+void smart_accept_impl(AcceptContext *context);
 
 /**
  * @brief deferred adding back to task queue

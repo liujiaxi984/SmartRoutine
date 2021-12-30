@@ -31,8 +31,6 @@ void SmartThread::coro_runner(intptr_t placeholder) {
 SmartThread::SmartThread()
     : task_queue_(FLAGS_task_queue_length), runner_callback_(nullptr),
       runner_callback_args_(nullptr) {
-    // TODO: Maybe i can run a local eventloop in main coro, because now main
-    // coro is only used in first switch
     main_coro_ = new SmartCoro(nullptr, nullptr);
     current_coro_ = main_coro_;
 }
@@ -59,18 +57,25 @@ int SmartThread::main_loop() {
             continue;
         }
         switch_to(coro);
+        if (runner_callback_) {
+            runner_callback_(runner_callback_args_);
+            runner_callback_ = nullptr;
+            runner_callback_args_ = nullptr;
+        }
     }
 }
 
 int SmartThread::yield(bool with_callback, RunnerCallback runner_callback,
                        void *runner_callback_args) {
+    if (with_callback) {
+        runner_callback_ = runner_callback;
+        runner_callback_args_ = runner_callback_args;
+    }
     SmartCoro *coro = tls_smart_thread->get_task();
     if (coro != nullptr) {
-        if (with_callback) {
-            runner_callback_ = runner_callback;
-            runner_callback_args_ = runner_callback_args;
-        }
         tls_smart_thread->switch_to(coro);
+    } else {
+        tls_smart_thread->switch_to(main_coro_);
     }
     return 0;
 }
@@ -83,9 +88,12 @@ void SmartThread::destroy_coro(void *args) {
 }
 
 int SmartThread::switch_to(SmartCoro *next_coro) {
+    int saved_errno = errno; // save errno because it is a tls variable
     fcontext_t *curr_fcontext = &current_coro_->context_.fcontext_;
     current_coro_ = next_coro;
-    return jump_fcontext(curr_fcontext, next_coro->context_.fcontext_, 0);
+    int ret = jump_fcontext(curr_fcontext, next_coro->context_.fcontext_, 0);
+    errno = saved_errno;
+    return ret;
 }
 
 SmartCoro *SmartThread::get_task() {
