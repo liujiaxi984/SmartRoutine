@@ -2,7 +2,10 @@
 #include "epoll_item.h"
 #include "smart_coro.h"
 #include <memory>
+#include <string>
+#include <sys/socket.h>
 #include <unistd.h>
+namespace smartroutine {
 
 struct ReadContext {
     ReadContext(int fd, void *buf, size_t count, SmartCoro *coro,
@@ -85,3 +88,4 @@ void enable_epoll_reading(void *args);
  * @param args EPollItem *item
  */
 void enable_epoll_writing(void *args);
+}

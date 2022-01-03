@@ -3,6 +3,7 @@
 #include <limits.h>
 #include <sys/epoll.h>
 #include <sys/time.h>
+namespace smartroutine {
 
 #define EPOLL_CREATE_SIZE 10000
 
@@ -79,4 +80,5 @@ uint64_t SmartTimer::get_timestamp_now() {
 
 uint64_t SmartTimer::get_timestamp(struct timeval *tv) {
     return tv->tv_sec * 1000 + tv->tv_usec;
+}
 }

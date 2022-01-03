@@ -56,7 +56,8 @@
         "string_view": "cpp",
         "memory": "cpp",
         "condition_variable": "cpp",
-        "random": "cpp"
+        "random": "cpp",
+        "*.inc": "cpp"
     },
     "editor.bracketPairColorization.enabled": true
 }

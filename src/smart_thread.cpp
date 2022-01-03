@@ -5,7 +5,9 @@
 #include <glog/logging.h>
 #include <unistd.h>
 
-__thread SmartThread *tls_smart_thread = nullptr;
+__thread smartroutine::SmartThread *tls_smart_thread = nullptr;
+
+namespace smartroutine {
 
 DEFINE_uint64(task_queue_length, 25, "thread task queue length");
 
@@ -14,23 +16,23 @@ DEFINE_uint64(acquire_tasks_batch_size, 10,
 
 void SmartThread::coro_runner(intptr_t placeholder) {
     SmartThread *tls_st = tls_smart_thread;
-    if (tls_st->runner_callback_) {
-        tls_st->runner_callback_(tls_st->runner_callback_args_);
-        tls_st->runner_callback_ = nullptr;
-        tls_st->runner_callback_args_ = nullptr;
+    if (tls_st->delay_callback_) {
+        tls_st->delay_callback_(tls_st->delay_callback_args_);
+        tls_st->delay_callback_ = nullptr;
+        tls_st->delay_callback_args_ = nullptr;
     }
     SmartCoro *curr_coro = tls_st->current_coro_;
     if (curr_coro && curr_coro->fn_) {
         curr_coro->fn_(curr_coro->args_);
     }
-    tls_st->runner_callback_ = destroy_coro;
-    tls_st->runner_callback_args_ = curr_coro;
+    tls_st->delay_callback_ = destroy_coro;
+    tls_st->delay_callback_args_ = curr_coro;
     tls_st->main_loop();
 }
 
 SmartThread::SmartThread()
-    : task_queue_(FLAGS_task_queue_length), runner_callback_(nullptr),
-      runner_callback_args_(nullptr) {
+    : task_queue_(FLAGS_task_queue_length), delay_callback_(nullptr),
+      delay_callback_args_(nullptr) {
     main_coro_ = new SmartCoro(nullptr, nullptr);
     current_coro_ = main_coro_;
 }
@@ -57,19 +59,19 @@ int SmartThread::main_loop() {
             continue;
         }
         switch_to(coro);
-        if (runner_callback_) {
-            runner_callback_(runner_callback_args_);
-            runner_callback_ = nullptr;
-            runner_callback_args_ = nullptr;
+        if (delay_callback_) {
+            delay_callback_(delay_callback_args_);
+            delay_callback_ = nullptr;
+            delay_callback_args_ = nullptr;
         }
     }
 }
 
-int SmartThread::yield(bool with_callback, RunnerCallback runner_callback,
+int SmartThread::yield(bool with_callback, DelayCallback runner_callback,
                        void *runner_callback_args) {
     if (with_callback) {
-        runner_callback_ = runner_callback;
-        runner_callback_args_ = runner_callback_args;
+        delay_callback_ = runner_callback;
+        delay_callback_args_ = runner_callback_args;
     }
     SmartCoro *coro = tls_smart_thread->get_task();
     if (coro != nullptr) {
@@ -117,4 +119,5 @@ int SmartThread::push_task(SmartCoro *coro) {
     if (!success)
         return SmartRuntime::get_instance().push_task(coro);
     return 0;
+}
 }

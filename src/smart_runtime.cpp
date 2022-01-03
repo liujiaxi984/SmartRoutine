@@ -4,7 +4,9 @@
 #include <pthread.h>
 #include <thread>
 
-extern __thread SmartThread *tls_smart_thread;
+extern __thread smartroutine::SmartThread *tls_smart_thread;
+
+namespace smartroutine {
 
 pthread_once_t SmartRuntime::once_control_ = PTHREAD_ONCE_INIT;
 
@@ -106,3 +108,4 @@ SmartRuntime::~SmartRuntime() {
 }
 
 void SmartRuntime::exit_clean() { delete value_; }
+}

@@ -6,6 +6,7 @@
 #include <mutex>
 #include <queue>
 #include <vector>
+namespace smartroutine {
 
 class TimerComp {
   public:
@@ -56,3 +57,4 @@ class SmartTimer {
     uint64_t nearest_expire_timestamp_;
     std::list<TimerItem> timeout_list_;
 };
+}

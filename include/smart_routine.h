@@ -7,7 +7,7 @@ int smart_routine_start(void *(*fn)(void *), void *args);
 
 int smart_routine_yield();
 
-int smart_routine_resume(SmartCoro *coro);
+int smart_routine_resume(smartroutine::SmartCoro *coro);
 
 // TODO: Maybe hook glibc api
 int smart_socket(int domain, int type, int protocol);

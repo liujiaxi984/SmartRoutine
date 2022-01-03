@@ -6,6 +6,7 @@
 #include <list>
 #include <mutex>
 #include <vector>
+namespace smartroutine {
 
 class SmartRuntime {
   public:
@@ -40,3 +41,4 @@ class SmartRuntime {
     pthread_t timer_tid_;
     std::vector<pthread_t> tids_;
 };
+}

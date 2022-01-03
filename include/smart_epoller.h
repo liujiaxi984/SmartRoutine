@@ -1,6 +1,7 @@
 #pragma once
 #include "epoll_item.h"
 #include <list>
+namespace smartroutine {
 
 class SmartEPoller {
   public:
@@ -17,3 +18,4 @@ class SmartEPoller {
     std::list<EPollItem *> ready_list_;
     int epoll_timeout_;
 };
+}

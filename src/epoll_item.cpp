@@ -1,5 +1,6 @@
 #include "epoll_item.h"
 #include "smart_epoller.h"
+namespace smartroutine {
 
 void EPollItem::handle_events() {
     if (revents_ & EPOLLHUP) {
@@ -21,3 +22,4 @@ void EPollItem::handle_events() {
 }
 
 void EPollItem::update() { epoller_->watch_event(this); }
+}

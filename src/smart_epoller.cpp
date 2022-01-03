@@ -2,6 +2,7 @@
 #include <gflags/gflags.h>
 #include <glog/logging.h>
 #include <sys/epoll.h>
+namespace smartroutine {
 
 #define EPOLL_CREATE_SIZE 10000
 #define DEFAULT_EVLIST_SIZE 10000
@@ -81,4 +82,5 @@ int SmartEPoller::eventloop() {
             ready_item->handle_events();
         }
     }
+}
 }

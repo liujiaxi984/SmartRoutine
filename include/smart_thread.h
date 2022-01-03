@@ -3,8 +3,9 @@
 #include "smart_coro.h"
 #include <functional>
 #include <list>
+namespace smartroutine {
 
-typedef std::function<void(void *)> RunnerCallback;
+typedef std::function<void(void *)> DelayCallback;
 
 class SmartThread {
   public:
@@ -15,7 +16,7 @@ class SmartThread {
     static void coro_runner(intptr_t placeholder);
     SmartCoro *get_task();
     int push_task(SmartCoro *coro);
-    int yield(bool with_callback, RunnerCallback runner_callback = nullptr,
+    int yield(bool with_callback, DelayCallback runner_callback = nullptr,
               void *runner_callback_args = nullptr);
     SmartCoro *get_current_coro();
 
@@ -27,6 +28,7 @@ class SmartThread {
     SmartCoro *main_coro_;
     SmartCoro *current_coro_;
     BoundedQueue<SmartCoro *> task_queue_;
-    RunnerCallback runner_callback_;
-    void *runner_callback_args_;
+    DelayCallback delay_callback_;
+    void *delay_callback_args_;
 };
+}

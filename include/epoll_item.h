@@ -1,6 +1,7 @@
 #pragma once
 #include <functional>
 #include <sys/epoll.h>
+namespace smartroutine {
 
 class SmartEPoller;
 
@@ -67,3 +68,4 @@ class EPollItem {
     SmartEPoller *epoller_;
     bool watching_;
 };
+}

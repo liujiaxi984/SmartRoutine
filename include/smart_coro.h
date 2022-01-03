@@ -1,5 +1,7 @@
 #pragma once
 #include "internal/libcontext.h"
+#include <mutex>
+namespace smartroutine {
 
 typedef void *(*EntryFn)(void *);
 
@@ -20,4 +22,6 @@ class SmartCoro {
     EntryFn fn_;
     void *args_;
     CoroContext context_;
+    std::mutex lock_;
 };
+}

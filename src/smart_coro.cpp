@@ -5,6 +5,7 @@
 #include <glog/logging.h>
 #include <string.h>
 #include <unistd.h>
+namespace smartroutine {
 
 DEFINE_uint64(stack_size, 128 * 1024, "coroutine stack size");
 
@@ -30,3 +31,4 @@ SmartCoro::SmartCoro(EntryFn fn, void *args) : fn_(fn), args_(args) {
 }
 
 SmartCoro::~SmartCoro() { free(context_.sp_); }
+}

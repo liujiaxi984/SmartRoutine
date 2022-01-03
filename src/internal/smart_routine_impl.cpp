@@ -6,7 +6,9 @@
 #include <glog/logging.h>
 #include <string.h>
 
-extern __thread SmartThread *tls_smart_thread;
+extern __thread smartroutine::SmartThread *tls_smart_thread;
+
+namespace smartroutine {
 
 void smart_read_impl(ReadContext *context) {
     int ret = read(context->fd_, (char *)context->buf_ + context->curr_,
@@ -88,4 +90,5 @@ void enable_epoll_reading(void *args) {
 void enable_epoll_writing(void *args) {
     EPollItem *item = (EPollItem *)args;
     item->enable_writing();
+}
 }

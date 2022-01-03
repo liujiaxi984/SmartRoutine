@@ -1,5 +1,6 @@
 #pragma once
 #include "epoll_item.h"
+namespace smartroutine {
 
 typedef std::function<void *(void *)> TimerCallback;
 
@@ -11,3 +12,4 @@ class TimerItem {
     void *args_;
     uint64_t timestamp_;
 };
+}
