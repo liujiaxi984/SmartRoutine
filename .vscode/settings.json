@@ -1,5 +1,6 @@
 {
     "files.associations": {
+        "*.cpp": "cpp",
         "thread": "cpp",
         "mutex": "cpp",
         "cctype": "cpp",
@@ -57,7 +58,8 @@
         "memory": "cpp",
         "condition_variable": "cpp",
         "random": "cpp",
-        "*.inc": "cpp"
+        "*.inc": "cpp",
+        "string": "cpp"
     },
     "editor.bracketPairColorization.enabled": true
 }

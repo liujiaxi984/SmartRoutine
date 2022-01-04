@@ -8,7 +8,8 @@ enum CodeVal {
     InsufficientResources,
     OutOfMemory,
     PermissionDenied,
-    AddressInUse
+    AddressInUse,
+    ConnectionAborted
 };
 
 class ErrorCode {
