@@ -10,7 +10,8 @@ typedef std::function<void()> EventCallback;
 class EPollItem {
   public:
     EPollItem(int fd, SmartEPoller *epoller)
-        : fd_(fd), epoller_(epoller), watching_(false) {}
+        : fd_(fd), events_(0), revents_(0), epoller_(epoller),
+          watching_(false) {}
     int fd() { return fd_; }
     int events() { return events_; }
     void enable_reading() {

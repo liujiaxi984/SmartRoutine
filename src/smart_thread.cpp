@@ -25,9 +25,11 @@ void SmartThread::coro_runner(intptr_t placeholder) {
     if (curr_coro && curr_coro->fn_) {
         curr_coro->fn_(curr_coro->args_);
     }
+    DLOG(INFO) << "routine done " << curr_coro;
     tls_st->delay_callback_ = destroy_coro;
     tls_st->delay_callback_args_ = curr_coro;
     tls_st->main_loop();
+    // tls_st->switch_to(tls_st->main_coro_);
 }
 
 SmartThread::SmartThread()
@@ -86,10 +88,12 @@ SmartCoro *SmartThread::get_current_coro() { return current_coro_; }
 
 void SmartThread::destroy_coro(void *args) {
     SmartCoro *coro = (SmartCoro *)args;
+    DLOG(INFO) << tls_smart_thread << " destroy_coro " << coro;
     delete coro;
 }
 
 int SmartThread::switch_to(SmartCoro *next_coro) {
+    DLOG(INFO) << tls_smart_thread << " switch_to " << next_coro;
     int saved_errno = errno; // save errno because it is a tls variable
     fcontext_t *curr_fcontext = &current_coro_->context_.fcontext_;
     current_coro_ = next_coro;

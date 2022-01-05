@@ -8,6 +8,15 @@ namespace smartroutine {
 TcpSocket::TcpSocket()
     : socket_(-1), opened_(false), bound_(false), connected_(false) {}
 
+TcpSocket::TcpSocket(TcpSocket &&other)
+    : socket_(other.socket_), opened_(other.opened_), bound_(other.bound_),
+      connected_(other.connected_) {
+    other.socket_ = -1;
+    other.bound_ = false;
+    other.opened_ = false;
+    other.connected_ = false;
+}
+
 TcpSocket::~TcpSocket() {
     if (socket_ >= 0)
         ::close(socket_);
@@ -39,6 +48,10 @@ void TcpSocket::bind(const Endpoint &endpoint, ErrorCode &ec) {
     }
     size_t addr_size;
     const sockaddr *addr = endpoint.to_sockaddr_in(addr_size);
+    if (addr == nullptr) {
+        ec = InvalidArgument;
+        return;
+    }
     int ret = ::bind(socket_, addr, addr_size);
     if (ret < 0) {
         if (errno == EACCES)

@@ -37,7 +37,7 @@ SmartEPoller::~SmartEPoller() {
 int SmartEPoller::watch_event(EPollItem *item) {
     struct epoll_event event;
     int ret = 0;
-    memset(&event, 0, sizeof(event));
+    bzero(&event, sizeof(struct epoll_event));
     if (item->is_watching()) {
         if (item->is_disabled()) {
             ret = epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, item->fd(), NULL);

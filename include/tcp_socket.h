@@ -7,6 +7,7 @@ namespace smartroutine {
 class TcpSocket {
   public:
     TcpSocket();
+    TcpSocket(TcpSocket &&other);
     virtual ~TcpSocket();
     void open(ErrorCode &ec);
     void connect(const Endpoint &peer_endpoint, ErrorCode &ec);

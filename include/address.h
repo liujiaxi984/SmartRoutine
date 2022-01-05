@@ -9,7 +9,7 @@ enum AddressType { None, Ipv4, Ipv6 };
 class Address {
   public:
     Address();
-    friend Address make_address(const char *address_str, ErrorCode &code);
+    friend Address make_address(const char *address_str, ErrorCode &ec);
     void set_ipv4_address(const struct in_addr *addr);
     void set_ipv6_address(const struct in6_addr *addr6);
 
@@ -26,5 +26,5 @@ class Address {
     AddressType type_;
 };
 
-Address make_address(const char *address_str, ErrorCode &code);
+Address make_address(const char *address_str, ErrorCode &ec);
 }

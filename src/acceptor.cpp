@@ -2,6 +2,9 @@
 #include "smart_routine.h"
 #include <glog/logging.h>
 namespace smartroutine {
+
+Acceptor::Acceptor() : listening_(false) {}
+
 void Acceptor::listen(int backlog, ErrorCode &ec) {
     if (!opened_ || listening_) {
         ec = InvalidArgument;
@@ -47,5 +50,17 @@ void Acceptor::accept(TcpSocket &peer, Endpoint &peer_endpoint, ErrorCode &ec) {
         peer.set_accepted_fd(fd);
         peer_endpoint.from_sockaddr((struct sockaddr *)&addr);
     }
+}
+
+void Acceptor::set_address_reuse(ErrorCode &ec) {
+    if (!opened_) {
+        ec = InvalidArgument;
+        return;
+    }
+    int reuse_addr = 1;
+    int ret = setsockopt(socket_, SOL_SOCKET, SO_REUSEADDR, &reuse_addr,
+                         sizeof(reuse_addr));
+    if (ret < 0)
+        LOG(ERROR) << "setsockopt error: " << strerror(errno);
 }
 }

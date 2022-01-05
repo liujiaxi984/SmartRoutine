@@ -13,6 +13,7 @@ smart_thread.cpp
 epoll_item.cpp
 internal/libcontext.cpp
 internal/smart_routine_impl.cpp
+common/buffer.cpp
 smart_timer.cpp
 endpoint.cpp
 acceptor.cpp
