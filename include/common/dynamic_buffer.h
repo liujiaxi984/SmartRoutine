@@ -7,6 +7,7 @@ namespace smartroutine {
 class DynamicBuffer {
   public:
     DynamicBuffer();
+    DynamicBuffer(size_t max_capacity, size_t init_capacity);
     ~DynamicBuffer();
     size_t max_capacity() const { return max_capacity_; }
     size_t capacity() const { return capacity_; }

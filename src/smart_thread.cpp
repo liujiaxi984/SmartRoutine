@@ -93,7 +93,7 @@ void SmartThread::destroy_coro(void *args) {
 }
 
 int SmartThread::switch_to(SmartCoro *next_coro) {
-    DLOG(INFO) << tls_smart_thread << " switch_to " << next_coro;
+    // DLOG(INFO) << tls_smart_thread << " switch_to " << next_coro;
     int saved_errno = errno; // save errno because it is a tls variable
     fcontext_t *curr_fcontext = &current_coro_->context_.fcontext_;
     current_coro_ = next_coro;

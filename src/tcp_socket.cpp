@@ -129,6 +129,7 @@ ssize_t TcpSocket::read_until(DynamicBuffer &buffer, std::string delim,
         ec = InvalidArgument;
         return -1;
     }
+    return smart_read_until(socket_, buffer, delim, ec);
 }
 
 ssize_t TcpSocket::write(const ConstBuffer &buffer, ErrorCode &ec) {

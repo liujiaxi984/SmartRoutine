@@ -13,10 +13,13 @@ DEFINE_uint64(move_forward_threshold, 1024 * 1024,
               "threshold to reuse prependable bytes");
 
 DynamicBuffer::DynamicBuffer()
-    : read_index_(0), write_index_(0),
-      max_capacity_(FLAGS_max_dynamic_buffer_size) {
-    buffer_ = malloc(FLAGS_initial_dynamic_buffer_size);
-    capacity_ = FLAGS_initial_dynamic_buffer_size;
+    : DynamicBuffer(FLAGS_max_dynamic_buffer_size,
+                    FLAGS_initial_dynamic_buffer_size) {}
+
+DynamicBuffer::DynamicBuffer(size_t max_capacity, size_t init_capacity)
+    : read_index_(0), write_index_(0), max_capacity_(max_capacity) {
+    buffer_ = malloc(init_capacity);
+    capacity_ = init_capacity;
 }
 
 void DynamicBuffer::append(const void *data, size_t data_length,
@@ -43,7 +46,7 @@ void DynamicBuffer::consume(void *data, size_t data_length, ErrorCode &ec) {
         return;
     }
     std::memcpy(data, read_section_start(), data_length);
-    read_index_ -= data_length;
+    read_index_ += data_length;
 }
 
 void DynamicBuffer::expand_capacity() {

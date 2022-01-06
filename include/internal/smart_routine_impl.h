@@ -70,7 +70,7 @@ struct ReadUntilContext {
     SmartCoro *coro_;
     EPollItem *epoll_item_;
     ErrorCode ec_;
-    int ret_ = -1;
+    int ret_ = 0;
     size_t last_search_end_ = 0;
 };
 

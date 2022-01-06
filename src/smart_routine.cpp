@@ -116,8 +116,8 @@ int smart_connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen) {
         return connect(sockfd, addr, addrlen);
 }
 
-ssize_t read_until(int fd, DynamicBuffer &buffer, std::string delim,
-                   ErrorCode &ec) {
+ssize_t smart_read_until(int fd, DynamicBuffer &buffer, std::string delim,
+                         ErrorCode &ec) {
     if (tls_smart_thread != nullptr) {
         SmartEPoller &epoller = SmartRuntime::get_instance().get_epoller();
         EPollItem item(fd, &epoller);
@@ -129,7 +129,7 @@ ssize_t read_until(int fd, DynamicBuffer &buffer, std::string delim,
             ec = context.ec_;
         return context.ret_;
     } else {
-        LOG(ERROR) << "pthread doesn't support read_until";
+        LOG(ERROR) << "pthread doesn't support smart_read_until";
         return -1;
     }
 }
