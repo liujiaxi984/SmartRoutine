@@ -1,5 +1,6 @@
 #pragma once
 #include "common/buffer.h"
+#include "common/dynamic_buffer.h"
 #include "common/error_code.h"
 #include "endpoint.h"
 
@@ -17,8 +18,9 @@ class TcpSocket {
     bool is_bound() const { return bound_; }
     bool is_connected_() const { return connected_; }
     void set_accepted_fd(int fd);
-    int read(const MutableBuffer &buffer, ErrorCode &ec);
-    int write(const ConstBuffer &buffer, ErrorCode &ec);
+    ssize_t read(const MutableBuffer &buffer, ErrorCode &ec);
+    ssize_t read_until(DynamicBuffer &buffer, std::string delim, ErrorCode &ec);
+    ssize_t write(const ConstBuffer &buffer, ErrorCode &ec);
 
   protected:
     int socket_;

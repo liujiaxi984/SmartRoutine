@@ -1,2 +1,2 @@
 # smart_routine
-a routine library inspired by brpc
+a coroutine library inspired by brpc

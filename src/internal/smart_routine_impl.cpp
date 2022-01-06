@@ -2,9 +2,9 @@
 #include "epoll_item.h"
 #include "smart_routine.h"
 #include "smart_thread.h"
+#include <cstring>
 #include <errno.h>
 #include <glog/logging.h>
-#include <string.h>
 
 extern __thread smartroutine::SmartThread *tls_smart_thread;
 

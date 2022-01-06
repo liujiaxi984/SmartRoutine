@@ -1,9 +1,9 @@
 #include "smart_coro.h"
 #include "smart_thread.h"
 #include <algorithm>
+#include <cstring>
 #include <gflags/gflags.h>
 #include <glog/logging.h>
-#include <string.h>
 #include <unistd.h>
 namespace smartroutine {
 

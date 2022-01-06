@@ -111,7 +111,7 @@ void TcpSocket::set_accepted_fd(int fd) {
     connected_ = true;
 }
 
-int TcpSocket::read(const MutableBuffer &buffer, ErrorCode &ec) {
+ssize_t TcpSocket::read(const MutableBuffer &buffer, ErrorCode &ec) {
     if (!opened_ || !connected_) {
         ec = InvalidArgument;
         return -1;
@@ -123,7 +123,15 @@ int TcpSocket::read(const MutableBuffer &buffer, ErrorCode &ec) {
     return ret;
 }
 
-int TcpSocket::write(const ConstBuffer &buffer, ErrorCode &ec) {
+ssize_t TcpSocket::read_until(DynamicBuffer &buffer, std::string delim,
+                              ErrorCode &ec) {
+    if (!opened_ || !connected_) {
+        ec = InvalidArgument;
+        return -1;
+    }
+}
+
+ssize_t TcpSocket::write(const ConstBuffer &buffer, ErrorCode &ec) {
     if (!opened_ || !connected_) {
         ec = InvalidArgument;
         return -1;

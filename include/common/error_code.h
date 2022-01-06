@@ -10,13 +10,18 @@ enum CodeVal {
     OutOfMemory,
     PermissionDenied,
     AddressInUse,
-    ConnectionAborted
+    ConnectionAborted,
+    ExceedBufferBound
 };
 
-static const char *CodeValStr[] = {
-    "Success",           "Invalid Argument",  "Insufficient Resources",
-    "Out Of Memory",     "Permission Denied", "Address In Use",
-    "Connection Aborted"};
+static const char *CodeValStr[] = {"Success",
+                                   "Invalid Argument",
+                                   "Insufficient Resources",
+                                   "Out Of Memory",
+                                   "Permission Denied",
+                                   "Address In Use",
+                                   "Connection Aborted",
+                                   "Exceed Buffer Bound"};
 
 class ErrorCode {
   public:

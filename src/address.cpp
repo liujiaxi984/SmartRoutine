@@ -44,18 +44,18 @@ bool Address::is_v6() const { return type_ == Ipv6; }
 
 void Address::copy_addr(void *dst) const {
     if (type_ == Ipv4) {
-        memcpy(dst, &addr_, sizeof(sockaddr_in));
+        std::memcpy(dst, &addr_, sizeof(sockaddr_in));
     } else if (type_ == Ipv6) {
-        memcpy(dst, &addr6_, sizeof(sockaddr_in6));
+        std::memcpy(dst, &addr6_, sizeof(sockaddr_in6));
     }
 }
 
 void Address::set_ipv4_address(const struct in_addr *addr) {
-    memcpy(&addr_, addr, sizeof(in_addr));
+    std::memcpy(&addr_, addr, sizeof(in_addr));
     type_ = Ipv4;
 }
 void Address::set_ipv6_address(const struct in6_addr *addr6) {
-    memcpy(&addr6_, addr6, sizeof(in6_addr));
+    std::memcpy(&addr6_, addr6, sizeof(in6_addr));
     type_ = Ipv6;
 }
 }
