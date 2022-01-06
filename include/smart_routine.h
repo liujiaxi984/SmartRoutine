@@ -14,7 +14,8 @@ int smart_socket(int domain, int type, int protocol);
 
 ssize_t smart_read(int fd, void *buf, size_t count);
 
-ssize_t read_until(smartroutine::DynamicBuffer &buffer, std::string delim);
+ssize_t read_until(int fd, smartroutine::DynamicBuffer &buffer,
+                   std::string delim, smartroutine::ErrorCode &ec);
 
 ssize_t smart_write(int fd, const void *buf, size_t count);
 

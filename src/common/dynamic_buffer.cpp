@@ -85,4 +85,8 @@ size_t DynamicBuffer::max_writable_bytes() const {
             : 0;
     return max_capacity_ - capacity_ + writable_bytes() + prependable_length;
 }
+
+ConstBuffer DynamicBuffer::read_buffer() {
+    return ConstBuffer(read_section_start(), readable_bytes());
+}
 }

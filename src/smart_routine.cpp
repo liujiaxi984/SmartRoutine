@@ -53,9 +53,9 @@ ssize_t smart_read(int fd, void *buf, size_t count) {
                             tls_smart_thread->get_current_coro(), &item);
         item.set_read_callback(std::bind(smart_read_impl, &context));
         tls_smart_thread->yield(true, enable_epoll_reading, &item);
-        if (context.curr_ < 0)
+        if (context.ret_ < 0)
             errno = context.errno_;
-        return context.curr_;
+        return context.ret_;
     } else
         return read(fd, buf, count);
 }
@@ -68,9 +68,9 @@ ssize_t smart_write(int fd, const void *buf, size_t count) {
                              tls_smart_thread->get_current_coro(), &item);
         item.set_write_callback(std::bind(smart_write_impl, &context));
         tls_smart_thread->yield(true, enable_epoll_writing, &item);
-        if (context.curr_ < 0)
+        if (context.ret_ < 0)
             errno = context.errno_;
-        return context.curr_;
+        return context.ret_;
     } else
         return write(fd, buf, count);
 }
@@ -116,4 +116,20 @@ int smart_connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen) {
         return connect(sockfd, addr, addrlen);
 }
 
-ssize_t read_until(DynamicBuffer &buffer, std::string delim) {}
+ssize_t read_until(int fd, DynamicBuffer &buffer, std::string delim,
+                   ErrorCode &ec) {
+    if (tls_smart_thread != nullptr) {
+        SmartEPoller &epoller = SmartRuntime::get_instance().get_epoller();
+        EPollItem item(fd, &epoller);
+        ReadUntilContext context(fd, buffer, delim,
+                                 tls_smart_thread->get_current_coro(), &item);
+        item.set_read_callback(std::bind(smart_read_until_impl, &context));
+        tls_smart_thread->yield(true, enable_epoll_reading, &item);
+        if (context.ret_ < 0)
+            ec = context.ec_;
+        return context.ret_;
+    } else {
+        LOG(ERROR) << "pthread doesn't support read_until";
+        return -1;
+    }
+}

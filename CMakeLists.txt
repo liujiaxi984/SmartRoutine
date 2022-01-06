@@ -17,7 +17,5 @@ if (NOT CMAKE_BUILD_TYPE)
    )
 endif ()
 
-include(CTest)
-
 add_subdirectory(src)
 add_subdirectory(test)

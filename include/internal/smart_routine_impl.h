@@ -1,4 +1,5 @@
 #pragma once
+#include "common/dynamic_buffer.h"
 #include "epoll_item.h"
 #include "smart_coro.h"
 #include <memory>
@@ -17,7 +18,7 @@ struct ReadContext {
     size_t count_;
     SmartCoro *coro_;
     EPollItem *epoll_item_;
-    size_t curr_ = 0;
+    size_t ret_ = 0;
     int errno_ = 0;
 };
 
@@ -31,7 +32,7 @@ struct WriteContext {
     size_t count_;
     SmartCoro *coro_;
     EPollItem *epoll_item_;
-    size_t curr_ = 0;
+    size_t ret_ = 0;
     int errno_ = 0;
 };
 
@@ -58,7 +59,24 @@ struct AcceptContext {
     int ret_ = -1;
 };
 
+struct ReadUntilContext {
+    ReadUntilContext(int fd, DynamicBuffer &buffer, std::string delim,
+                     SmartCoro *coro, EPollItem *epoll_item)
+        : fd_(fd), buffer_(buffer), delim_(delim), coro_(coro),
+          epoll_item_(epoll_item) {}
+    int fd_;
+    DynamicBuffer &buffer_;
+    std::string delim_;
+    SmartCoro *coro_;
+    EPollItem *epoll_item_;
+    ErrorCode ec_;
+    int ret_ = -1;
+    size_t last_search_end_ = 0;
+};
+
 void smart_read_impl(ReadContext *context);
+
+void smart_read_until_impl(ReadUntilContext *context);
 
 void smart_write_impl(WriteContext *context);
 
@@ -88,4 +106,13 @@ void enable_epoll_reading(void *args);
  * @param args EPollItem *item
  */
 void enable_epoll_writing(void *args);
+
+void resume_read_coro(SmartCoro *coro, EPollItem *epoll_item);
+void resume_write_coro(SmartCoro *coro, EPollItem *epoll_item);
+
+enum PartialSearchResult { Match, PartialMatch, NotMatch };
+
+std::pair<PartialSearchResult, size_t>
+partial_search(const char *search_buffer, size_t search_buffer_length,
+               std::string &search_str);
 }
